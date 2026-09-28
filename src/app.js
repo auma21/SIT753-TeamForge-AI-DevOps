@@ -8,18 +8,23 @@
  * application can be imported independently during automated tests.
  */
 
-const express = require('express');
-const helmet = require('helmet');
-const cors = require('cors');
-const compression = require('compression');
-const morgan = require('morgan');
-const rateLimit = require('express-rate-limit');
+const express = require("express");
+const helmet = require("helmet");
+const cors = require("cors");
+const compression = require("compression");
+const morgan = require("morgan");
+const rateLimit = require("express-rate-limit");
 
-const healthRoutes = require('./routes/health.routes');
-const authRoutes = require('./routes/auth.routes');
+const healthRoutes = require("./routes/health.routes");
+const authRoutes = require("./routes/auth.routes");
 
-const notFound = require('./middleware/notFound');
-const errorHandler = require('./middleware/errorHandler');
+const projectRoutes = require("./routes/project.routes");
+const projectTaskRoutes = require("./routes/projectTask.routes");
+
+const taskRoutes = require("./routes/task.routes");
+
+const notFound = require("./middleware/notFound");
+const errorHandler = require("./middleware/errorHandler");
 
 const app = express();
 
@@ -43,19 +48,19 @@ app.use(compression());
  * bodies from consuming unnecessary server resources.
  */
 app.use(
-    express.json({
-        limit: '1mb',
-    })
+  express.json({
+    limit: "1mb",
+  }),
 );
 
 /*
  * Parse URL-encoded form submissions.
  */
 app.use(
-    express.urlencoded({
-        extended: false,
-        limit: '1mb',
-    })
+  express.urlencoded({
+    extended: false,
+    limit: "1mb",
+  }),
 );
 
 /*
@@ -65,10 +70,10 @@ app.use(
  * origin instead of allowing unrestricted cross-origin access.
  */
 app.use(
-    cors({
-        origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000', 
-        credentials: true,
-    })
+  cors({
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+    credentials: true,
+  }),
 );
 
 /*
@@ -77,9 +82,7 @@ app.use(
  * Development uses concise logs while production uses the
  * more comprehensive combined log format.
  */
-app.use(
-    morgan( process.env.NODE_ENV === 'production' ? 'combined' : 'dev' )
-);
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 /*
  * General API rate limiter.
@@ -88,38 +91,49 @@ app.use(
  * a defined time window.
  */
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 200,
-    standardHeaders: true,
-    legacyHeaders: false,
+  windowMs: 15 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
-app.use('/api', apiLimiter);
+app.use("/api", apiLimiter);
 
 /*
  * Serve the TeamForge AI frontend from the public directory.
  */
-app.use(express.static('public'));
+app.use(express.static("public"));
 
 /*
  * Public operational health endpoint.
  */
-app.use('/health', healthRoutes);
+app.use("/health", healthRoutes);
 
 /*
  * Authentication API.
  */
-app.use('/api/auth', authRoutes);
+app.use("/api/auth", authRoutes);
 
 /*
- * IMPORTANT:
- *
- * Project and task routes are intentionally not registered yet.
- * They will be enabled after their implementation is complete.
+/*
+ * Authenticated project-management API.
  */
+app.use("/api/projects", projectRoutes);
+/*
+ * Nested Project -> Task API.
+ *
+ * projectTaskRoutes defines:
+ * /:projectId/tasks
+ *
+ * Therefore the complete endpoint becomes:
+ * /api/projects/:projectId/tasks
+ */
+app.use("/api/projects", projectTaskRoutes);
 
-// app.use('/api/projects', projectRoutes);
-// app.use('/api/tasks', taskRoutes);
+/*
+ * Individual Task CRUD API.
+ */
+app.use("/api/tasks", taskRoutes);
 
 /*
  * Requests that reach this point do not match a registered route.

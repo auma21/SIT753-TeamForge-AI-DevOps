@@ -5,10 +5,10 @@
  * so configuration is available to all downstream modules.
  */
 
-require('dotenv').config();
+require("dotenv").config();
 
-const app = require('./app');
-const pool = require('./config/database');
+const app = require("./app");
+const pool = require("./config/database");
 
 const PORT = Number(process.env.PORT || 3000);
 
@@ -20,21 +20,21 @@ let server;
  * from running without its required database.
  */
 async function startServer() {
-    try {
-        await pool.query('SELECT 1');
+  try {
+    await pool.query("SELECT 1");
 
-        console.log('PostgreSQL connection verified.');
+    console.log("PostgreSQL connection verified.");
 
-        server = app.listen(PORT, () => {
-            console.log(
-                `TeamForge AI running on port ${PORT} ` +
-                `(${process.env.NODE_ENV || 'development'})`
-            );
-        });
-    } catch (error) {
-        console.error('Unable to start TeamForge AI:', error);
-        process.exit(1);
-    }
+    server = app.listen(PORT, () => {
+      console.log(
+        `TeamForge AI running on port ${PORT} ` +
+          `(${process.env.NODE_ENV || "development"})`,
+      );
+    });
+  } catch (error) {
+    console.error("Unable to start TeamForge AI:", error);
+    process.exit(1);
+  }
 }
 
 /**
@@ -42,20 +42,20 @@ async function startServer() {
  * cleanly when Docker/Jenkins stops the application.
  */
 async function shutdown(signal) {
-    console.log(`${signal} received. Shutting down gracefully.`);
+  console.log(`${signal} received. Shutting down gracefully.`);
 
-    if (server) {
-        server.close(async () => {
-            await pool.end();
-            process.exit(0);
-        });
-    } else {
-        await pool.end();
-        process.exit(0);
-    }
+  if (server) {
+    server.close(async () => {
+      await pool.end();
+      process.exit(0);
+    });
+  } else {
+    await pool.end();
+    process.exit(0);
+  }
 }
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
 
 startServer();
