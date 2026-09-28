@@ -13,6 +13,9 @@ node_modules/
 .env
 .env.*
 !.env.dummy
+# Docker runtime secrets
+.env.docker
+!.env.docker.dummy
 
 # Automated tests are not required by the production runtime.
 tests/

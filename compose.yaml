@@ -1,0 +1,109 @@
+# ============================================================
+# TeamForge AI - Production-like Docker Compose Deployment
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # PostgreSQL
+  # ----------------------------------------------------------
+  postgres:
+    image: postgres:17-alpine
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+
+    volumes:
+      # Persistent PostgreSQL data.
+      - teamforge-postgres-data:/var/lib/postgresql/data
+
+      # Schema initialization executes only when PostgreSQL
+      # creates a new/empty data directory.
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USER} -d ${DB_NAME}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    networks:
+      - teamforge-network
+
+
+  # ----------------------------------------------------------
+  # TeamForge AI API
+  # ----------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: teamforge-ai:local
+
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+
+      PORT: 3000
+
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
+
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:3000}
+
+    ports:
+      - "3000:3000"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+    networks:
+      - teamforge-network
+
+
+# ------------------------------------------------------------
+# Persistent storage
+# ------------------------------------------------------------
+
+volumes:
+  teamforge-postgres-data:
+
+
+# ------------------------------------------------------------
+# Internal application network
+# ------------------------------------------------------------
+
+networks:
+  teamforge-network:
+    driver: bridge
