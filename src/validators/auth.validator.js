@@ -28,7 +28,7 @@ const registerValidator = [
         .withMessage('Password must contain an uppercase letter.')
         .matches(/[a-z]/)
         .withMessage('Password must contain a lowercase letter.')
-        .matches(/[0-9]/)
+        .matches(/\d/)
         .withMessage('Password must contain a number.')
 ];
 
