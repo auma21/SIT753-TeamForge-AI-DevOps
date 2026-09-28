@@ -1,1 +1,39 @@
+# ============================================================
+# TeamForge AI - Docker Build Context
+# ============================================================
 
+# Node dependencies are rebuilt deterministically inside Docker.
+node_modules/
+
+# Git metadata.
+.git/
+.gitignore
+
+# Local environment files and secrets.
+.env
+.env.*
+!.env.dummy
+
+# Automated tests are not required by the production runtime.
+tests/
+
+# Generated quality/test artefacts.
+coverage/
+test-results/
+security-reports/
+.scannerwork/
+
+# Development tooling.
+.vscode/
+.idea/
+
+# Operating-system metadata.
+.DS_Store
+Thumbs.db
+
+# Logs.
+*.log
+npm-debug.log*
+
+# Local evidence/documentation.
+screenshots/

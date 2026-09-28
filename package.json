@@ -13,8 +13,11 @@
 
     "lint": "eslint src tests",
     "quality": "npm run lint && npm run test:ci",
-    
-     "sonar": "sonar-scanner"
+
+     "sonar": "sonar-scanner",
+     "security:audit": "npm audit --omit=dev --audit-level=high",
+     "security:secrets": "node scripts/check-secrets.js",
+     "security": "npm run security:secrets && npm run security:audit"
   },
   "keywords": [],
   "author": "Tunde Ajayi",
