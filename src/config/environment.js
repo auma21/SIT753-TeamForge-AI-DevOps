@@ -1,29 +1,56 @@
 /**
- * TeamForge AI environment configuration.
+ * TeamForge AI - Environment Configuration
  *
- * Environment variables are loaded centrally so that application
- * configuration behaves consistently during local development,
- * automated testing and application startup.
+ * Loads environment-specific configuration for local development
+ * and automated testing.
+ *
+ * Secrets are never committed to source control. Jenkins and
+ * production environments will later inject their configuration
+ * through environment variables and credential stores.
  */
 
 const path = require('path');
 const dotenv = require('dotenv');
 
-/*
- * Explicitly resolve .env relative to the project root.
+/**
+ * Select the local environment file.
  *
- * __dirname points to:
- *     src/config
+ * NODE_ENV=test:
+ *     .env.test
  *
- * ../../.env therefore resolves to:
- *     <project-root>/.env
+ * All other local environments:
+ *     .env
  */
-dotenv.config({
-    path: path.resolve(__dirname, '../../.env'),
-});
+const environmentFile =
+    process.env.NODE_ENV === 'test'
+        ? '.env.test'
+        : '.env';
 
 /**
- * Variables required for TeamForge AI to start successfully.
+ * Load configuration only when essential database configuration
+ * has not already been injected into the process environment.
+ *
+ * This allows Jenkins/Docker/production to provide environment
+ * variables without having local .env files override them.
+ */
+if (!process.env.DB_HOST) {
+    dotenv.config({
+        path: path.resolve(
+            __dirname,
+            '../../',
+            environmentFile
+        ),
+
+        /*
+         * Suppress dotenv informational messages so Jest and
+         * Jenkins logs remain focused on test/pipeline results.
+         */
+        quiet: true,
+    });
+}
+
+/**
+ * Configuration required for TeamForge AI to operate.
  */
 const requiredVariables = [
     'DB_HOST',
@@ -35,24 +62,19 @@ const requiredVariables = [
 ];
 
 /**
- * Validate application configuration during startup.
- *
- * Failing early produces a clear configuration error rather than
- * allowing PostgreSQL/JWT operations to fail later with ambiguous
- * runtime exceptions.
+ * Fail fast when mandatory configuration is unavailable.
  */
 function validateEnvironment() {
     const missingVariables =
-        requiredVariables.filter(
-            (variable) => {
-                const value = process.env[variable];
+        requiredVariables.filter((variable) => {
+            const value =
+                process.env[variable];
 
-                return (
-                    typeof value !== 'string' ||
-                    value.trim() === ''
-                );
-            }
-        );
+            return (
+                typeof value !== 'string' ||
+                value.trim() === ''
+            );
+        });
 
     if (missingVariables.length > 0) {
         throw new Error(

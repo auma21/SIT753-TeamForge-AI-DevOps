@@ -5,7 +5,7 @@
  * so configuration is available to all downstream modules.
  */
 
-require("dotenv").config();
+
 
 const app = require("./app");
 const pool = require("./config/database");
