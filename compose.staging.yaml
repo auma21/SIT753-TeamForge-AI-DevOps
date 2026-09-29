@@ -1,0 +1,9 @@
+# ============================================================
+# TeamForge AI - Staging Deployment Overlay
+# ============================================================
+
+services:
+
+  api:
+    environment:
+      DEPLOYMENT_ENVIRONMENT: staging

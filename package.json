@@ -9,15 +9,20 @@
     "test": "cross-env NODE_ENV=test jest --runInBand --coverage",
     "test:unit": "cross-env NODE_ENV=test jest tests/unit --runInBand --coverage=false",
     "test:integration": "cross-env NODE_ENV=test jest tests/integration --runInBand --coverage=false",
-    "test:ci": "cross-env NODE_ENV=test jest --runInBand --coverage --ci",
+    "test:ci": "cross-env NODE_ENV=test jest --runInBand --coverage --ci",    
 
-    "lint": "eslint src tests",
+    "lint": "eslint src tests scripts",
     "quality": "npm run lint && npm run test:ci",
+    
+    "sonar": "sonar-scanner",
 
-     "sonar": "sonar-scanner",
-     "security:audit": "npm audit --omit=dev --audit-level=high",
-     "security:secrets": "node scripts/check-secrets.js",
-     "security": "npm run security:secrets && npm run security:audit"
+    "security:audit": "npm audit --omit=dev --audit-level=high",
+    "security:secrets": "node scripts/check-secrets.js",
+    "security": "npm run security:secrets && npm run security:audit",
+
+    "smoke": "node scripts/smoke-test.js",
+    "smoke:staging": "cross-env SMOKE_BASE_URL=http://localhost:3001 node scripts/smoke-test.js",
+    "smoke:production": "cross-env SMOKE_BASE_URL=http://localhost:3000 node scripts/smoke-test.js"
   },
   "keywords": [],
   "author": "Tunde Ajayi",

@@ -1,14 +1,34 @@
 # ============================================================
-# TeamForge AI - Production-like Docker Compose Deployment
+# TeamForge AI - Base Docker Compose Configuration
+# ============================================================
+#
+# Shared architecture for:
+#   - local
+#   - staging
+#   - production
+#   - Jenkins CI/CD
+#
+# Environment-specific configuration is supplied through
+# environment files and small Compose overlays.
 # ============================================================
 
 services:
 
-  # ----------------------------------------------------------
-  # PostgreSQL
-  # ----------------------------------------------------------
+  # ==========================================================
+  # PostgreSQL Database
+  # ==========================================================
+
   postgres:
-    image: postgres:17-alpine
+
+    # TeamForge PostgreSQL image containing the version-controlled
+    # database initialization schema.
+    build:
+      context: ./database
+      dockerfile: Dockerfile
+
+    # IMAGE_TAG allows the same immutable database image to move
+    # through staging and production.
+    image: teamforge-postgres:${IMAGE_TAG:-local}
 
     restart: unless-stopped
 
@@ -17,14 +37,13 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
 
+    # Named volume only.
+    #
+    # No Windows/OneDrive host bind mount is required.
     volumes:
-      # Persistent PostgreSQL data.
-      - teamforge-postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
 
-      # Schema initialization executes only when PostgreSQL
-      # creates a new/empty data directory.
-      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
-
+    # PostgreSQL must accept connections before the API starts.
     healthcheck:
       test:
         [
@@ -39,49 +58,95 @@ services:
     networks:
       - teamforge-network
 
+    # PostgreSQL deliberately has no host port mapping.
+    #
+    # The API reaches it through Docker's private network at:
+    #
+    #   postgres:5432
 
-  # ----------------------------------------------------------
+
+  # ==========================================================
   # TeamForge AI API
-  # ----------------------------------------------------------
+  # ==========================================================
+
   api:
+
+    # Local deployments may build directly from source.
+    #
+    # Jenkins staging/production deployment will use --no-build
+    # to promote the exact previously built and scanned image.
     build:
       context: .
       dockerfile: Dockerfile
 
-    image: teamforge-ai:local
+    # Example CI image:
+    #
+    #   teamforge-ai:git-a1b2c3d
+    #
+    image: teamforge-ai:${IMAGE_TAG:-local}
 
     restart: unless-stopped
 
     environment:
-      NODE_ENV: production
 
-      PORT: 3000
+      # -------------------------------------------------------
+      # Runtime
+      # -------------------------------------------------------
 
-      DB_HOST: postgres
-      DB_PORT: 5432
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${PORT:-3000}
+      DEPLOYMENT_ENVIRONMENT: ${DEPLOYMENT_ENVIRONMENT:-local}
+
+      # -------------------------------------------------------
+      # PostgreSQL
+      # -------------------------------------------------------
+
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
 
+      # -------------------------------------------------------
+      # Authentication
+      # -------------------------------------------------------
+
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
 
+      # -------------------------------------------------------
+      # Client / CORS
+      # -------------------------------------------------------
+
       CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:3000}
 
+    # The container always listens on 3000.
+    #
+    # Host examples:
+    #
+    #   local       3000 -> 3000
+    #   staging     3001 -> 3000
+    #   production  3000 -> 3000
+    #
     ports:
-      - "3000:3000"
+      - "${API_HOST_PORT:-3000}:3000"
 
+    # Do not start the API until PostgreSQL is healthy.
     depends_on:
       postgres:
         condition: service_healthy
 
+    # Application-level health check.
+    #
+    # Node's built-in fetch avoids installing curl/wget in the
+    # hardened production image.
     healthcheck:
       test:
         [
           "CMD",
           "node",
           "-e",
-          "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+          "fetch('http://127.0.0.1:3000/health').then(r => { if (!r.ok) process.exit(1); }).catch(() => process.exit(1));"
         ]
       interval: 15s
       timeout: 5s
@@ -92,18 +157,35 @@ services:
       - teamforge-network
 
 
-# ------------------------------------------------------------
-# Persistent storage
-# ------------------------------------------------------------
+# ============================================================
+# Persistent Storage
+# ============================================================
+#
+# "postgres-data" is the fixed logical Compose volume key.
+#
+# DB_VOLUME_NAME changes its physical Docker volume name:
+#
+#   local:
+#     teamforge-postgres-data
+#
+#   staging:
+#     teamforge-postgres-staging
+#
+#   production:
+#     teamforge-postgres-production
+# ============================================================
 
 volumes:
-  teamforge-postgres-data:
+
+  postgres-data:
+    name: ${DB_VOLUME_NAME:-teamforge-postgres-data}
 
 
-# ------------------------------------------------------------
-# Internal application network
-# ------------------------------------------------------------
+# ============================================================
+# Internal Docker Network
+# ============================================================
 
 networks:
+
   teamforge-network:
     driver: bridge
