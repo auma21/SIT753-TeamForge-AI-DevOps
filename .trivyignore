@@ -1,0 +1,22 @@
+# ============================================================
+# TeamForge AI - Trivy Security Exceptions
+# ============================================================
+#
+# DS-0002 - PostgreSQL runtime USER
+#
+# database/Dockerfile extends the official PostgreSQL image.
+# The official docker-entrypoint.sh initially requires root
+# privileges for database-directory initialization and ownership
+# management, then drops privileges to the postgres account via
+# gosu before starting the PostgreSQL server.
+#
+# TeamForge independently verifies that:
+#   - gosu is rebuilt using a patched Go toolchain;
+#   - the gosu binary passes HIGH/CRITICAL vulnerability scans;
+#   - PostgreSQL runs as the postgres user after initialization;
+#   - the database remains healthy;
+#   - schema initialization succeeds.
+#
+# This exception is restricted to DS-0002 only.
+#
+DS-0002
