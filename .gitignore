@@ -28,6 +28,9 @@ test-results/
 # Security scanner reports
 security-reports/
 
+# Generated release metadata
+release/
+
 # ============================================================
 # Logs
 # ============================================================
