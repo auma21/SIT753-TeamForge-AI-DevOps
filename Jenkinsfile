@@ -45,11 +45,34 @@ pipeline {
         }
 
         stage('3. Code Quality') {
+
             steps {
+
+                echo '=== TEAMFORGE AI - CODE QUALITY ==='
+
                 bat 'npm run lint'
-                withSonarQubeEnv('SonarQube') { bat 'sonar-scanner' }
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+
+                script {
+
+                    def scannerHome =
+                        tool 'SonarScanner'
+
+                    withSonarQubeEnv('SonarQube') {
+
+                        bat """
+                            "${scannerHome}\\bin\\sonar-scanner.bat"
+                        """
+                    }
+                }
+
+                timeout(
+                    time: 10,
+                    unit: 'MINUTES'
+                ) {
+
+                    waitForQualityGate(
+                        abortPipeline: true
+                    )
                 }
             }
         }
