@@ -33,76 +33,139 @@ pipeline {
                 '''
             }
         }
+stage('2. Test') {
 
-        stage('2. Test') {
+    steps {
 
-            steps {
+        echo '=== TEAMFORGE AI - AUTOMATED TESTS ==='
 
-                echo '=== TEAMFORGE AI - AUTOMATED TESTS ==='
+        bat '''
+            @echo off
 
-                bat '''
-                    @echo off
+            echo ========================================
+            echo Jenkins Test Environment
+            echo ========================================
 
-                    echo ========================================
-                    echo Jenkins Test Environment
-                    echo ========================================
+            echo NODE_ENV=%NODE_ENV%
 
-                    echo NODE_ENV=%NODE_ENV%
+            echo.
+            echo Node:
+            node --version
+            if errorlevel 1 exit /b 1
 
-                    echo.
-                    echo Node:
-                    node --version
+            echo.
+            echo NPM:
+            npm --version
+            if errorlevel 1 exit /b 1
 
-                    echo.
-                    echo NPM:
-                    npm --version
+            echo.
+            echo Cleaning previous test evidence...
 
-                    echo.
-                    echo Working directory:
-                    cd
+            if exist test-results rmdir /s /q test-results
+            if exist coverage rmdir /s /q coverage
 
-                    echo.
-                    echo Test environment file:
-                    if exist .env.test (
-                        echo PASS: .env.test exists
-                    ) else (
-                        echo FAIL: .env.test is missing
-                        exit /b 1
-                    )
+            echo.
+            echo ========================================
+            echo Running TeamForge Automated Test Suite
+            echo ========================================
 
-                    echo.
-                    echo Running TeamForge CI tests...
-                    call npm run test:ci
+            call npm run test:ci
 
-                    set TEST_EXIT_CODE=%ERRORLEVEL%
+            set TEST_EXIT_CODE=%ERRORLEVEL%
 
-                    echo.
-                    echo ========================================
-                    echo test:ci exit code: %TEST_EXIT_CODE%
-                    echo ========================================
+            echo.
+            echo ========================================
+            echo TeamForge test exit code: %TEST_EXIT_CODE%
+            echo ========================================
 
-                    exit /b %TEST_EXIT_CODE%
-                '''
-            }
+            exit /b %TEST_EXIT_CODE%
+        '''
+    }
 
-            post {
+    post {
 
-                always {
+        always {
 
-                    junit(
-                        testResults: 'test-results/**/*.xml',
-                        allowEmptyResults: true
-                    )
+            junit(
+                testResults: 'test-results/junit.xml',
+                allowEmptyResults: false
+            )
 
-                    archiveArtifacts(
-                        artifacts: 'coverage/**/*',
-                        allowEmptyArchive: true,
-                        fingerprint: true
-                    )
-                }
-            }
+            archiveArtifacts(
+                artifacts: 'coverage/**/*',
+                allowEmptyArchive: false,
+                fingerprint: true
+            )
         }
+    }
+}
+stage('2. Test') {
 
+    steps {
+
+        echo '=== TEAMFORGE AI - AUTOMATED TESTS ==='
+
+        bat '''
+            @echo off
+
+            echo ========================================
+            echo Jenkins Test Environment
+            echo ========================================
+
+            echo NODE_ENV=%NODE_ENV%
+
+            echo.
+            echo Node:
+            node --version
+            if errorlevel 1 exit /b 1
+
+            echo.
+            echo NPM:
+            npm --version
+            if errorlevel 1 exit /b 1
+
+            echo.
+            echo Cleaning previous test evidence...
+
+            if exist test-results rmdir /s /q test-results
+            if exist coverage rmdir /s /q coverage
+
+            echo.
+            echo ========================================
+            echo Running TeamForge Automated Test Suite
+            echo ========================================
+
+            call npm run test:ci
+
+            set TEST_EXIT_CODE=%ERRORLEVEL%
+
+            echo.
+            echo ========================================
+            echo TeamForge test exit code: %TEST_EXIT_CODE%
+            echo ========================================
+
+            exit /b %TEST_EXIT_CODE%
+        '''
+    }
+
+    post {
+
+        always {
+
+            junit(
+                testResults: 'test-results/junit.xml',
+                allowEmptyResults: false
+            )
+
+            archiveArtifacts(
+                artifacts: 'coverage/**/*',
+                allowEmptyArchive: false,
+                fingerprint: true
+            )
+        }
+    }
+}
+       
         stage('3. Code Quality') {
 
             steps {
@@ -193,6 +256,30 @@ pipeline {
 
         stage('5. Deploy - Staging') {
             steps {
+
+                        echo '=== TEAMFORGE AI - STAGING DEPLOYMENT ==='
+
+                bat '''
+                    @echo off
+
+                    echo ========================================
+                    echo Jenkins Deployment Tool Verification
+                    echo ========================================
+
+                    echo.
+                    echo Docker:
+                    where docker
+                    docker --version
+                    if errorlevel 1 exit /b 1
+
+                    echo.
+                    echo Docker Compose:
+                    docker compose version
+                    if errorlevel 1 exit /b 1
+
+                    echo.
+                    echo PASS: Jenkins deployment tools available
+                '''
                 withCredentials([
                     string(credentialsId: 'teamforge-staging-db-password', variable: 'TEAMFORGE_DB_PASSWORD'),
                     string(credentialsId: 'teamforge-staging-jwt-secret', variable: 'TEAMFORGE_JWT_SECRET')
