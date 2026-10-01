@@ -91,6 +91,7 @@ COPY --chown=node:node \
 
 # Copy application source.
 COPY --chown=node:node src ./src
+COPY --chown=node:node public ./public
 
 # Copy database initialization resources.
 COPY --chown=node:node database ./database

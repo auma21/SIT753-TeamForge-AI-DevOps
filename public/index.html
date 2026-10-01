@@ -1,1 +1,181 @@
-
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width,initial-scale=1" name="viewport" />
+    <title>TeamForge AI</title>
+    <link href="/favicon.ico" rel="icon" type="image/x-icon" />
+    <link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png" />
+    <link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png" />
+    <link href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png" />
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
+    <link
+      href="/android-chrome-192x192.png"
+      rel="icon"
+      sizes="192x192"
+      type="image/png"
+    />
+    <link
+      href="/android-chrome-512x512.png"
+      rel="icon"
+      sizes="512x512"
+      type="image/png"
+    />
+    <meta content="#0e5699" name="theme-color" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&;display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "sans-serif"] },
+            colors: {
+              brand: {
+                50: "#ebf3fe",
+                100: "#d5e6fd",
+                500: "#1877F2",
+                600: "#1462c7",
+                700: "#0d4da1",
+              },
+              used: { bg: "#EDF9F0", accent: "#389E73", text: "#175438" },
+              notused: { bg: "#FDEEEE", accent: "#D15359", text: "#7e2328" },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      .grid-paper-bg {
+        background-size: 24px 24px;
+        background-image:
+          linear-gradient(
+            to right,
+            rgba(226, 232, 240, 0.5) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(226, 232, 240, 0.5) 1px,
+            transparent 1px
+          );
+      }
+    </style>
+    <link href="/css/styles.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="shell nav">
+        <a class="brand" href="/"
+          ><img
+            alt="TeamForge AI"
+            class="brand-logo"
+            src="/teamforge-logo.png"
+          />TeamForge AI</a
+        >
+        <div class="navlinks">
+          <a href="/login.html">Sign in</a
+          ><a class="btn primary" href="/register.html">Get started</a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <section class="shell hero">
+        <div>
+          <div class="eyebrow">Explainable collaboration platform</div>
+          <h1>Build the right team. Understand the work.</h1>
+          <p class="lead">
+            TeamForge AI turns the validated DevOps MVP into a usable project
+            workspace: secure authentication, project ownership and Agile
+            backlog management, with the responsible-AI design principles
+            retained from the original prototype.
+          </p>
+          <div class="actions">
+            <a class="btn primary" href="/register.html">Create an account</a
+            ><a class="btn secondary" href="/login.html">Sign in</a>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <h2>Implemented MVP</h2>
+          <p class="muted">
+            Supervisor-ready functionality backed by the deployed API.
+          </p>
+          <div class="metric-grid">
+            <div class="metric">
+              <strong>JWT</strong><span>Secure authentication</span>
+            </div>
+            <div class="metric">
+              <strong>CRUD</strong><span>Projects &; tasks</span>
+            </div>
+            <div class="metric">
+              <strong>UUID</strong><span>Relational identifiers</span>
+            </div>
+            <div class="metric">
+              <strong>CI/CD</strong><span>Quality &; security gates</span>
+            </div>
+          </div>
+          <div class="notice" style="margin-top: 18px">
+            <strong>Human control:</strong> AI recommendations remain advisory.
+            Users retain control of project and team decisions.
+          </div>
+        </aside>
+      </section>
+      <section class="shell section">
+        <div class="grid">
+          <article class="card">
+            <h3>Projects</h3>
+            <p>
+              Create, update and manage owned Capstone projects with controlled
+              lifecycle states.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Agile Backlog</h3>
+            <p>
+              Organise tasks across Backlog, To Do, In Progress, Review and Done
+              with priorities.
+            </p>
+          </article>
+          <article class="card">
+            <h3>Responsible AI</h3>
+            <p>
+              The earlier explainability, balance and transparency concepts
+              remain the design direction for future recommendation
+              capabilities.
+            </p>
+          </article>
+        </div>
+        <div class="prototype-strip">
+          <strong>Design continuity:</strong> View the
+          <a
+            href="https://auma21.github.io/SIT753-RapidS-Design-Thinking/"
+            rel="noopener noreferrer"
+            target="_blank"
+            >original TeamForge AI high-fidelity prototype</a
+          >.
+        </div>
+      </section>
+    </main>
+    <footer class="shell footer">
+      © 2026 TeamForge AI · SIT753 All rights reserved.
+    </footer>
+  </body>
+</html>

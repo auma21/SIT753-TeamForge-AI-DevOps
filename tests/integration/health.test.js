@@ -26,6 +26,15 @@ describe("GET /health", () => {
 
     expect(response.body.environment).toBe("test");
   });
+  test("serves the TeamForge AI frontend", async () => {
+    const response = await request(app).get("/");
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["content-type"]).toMatch(/text\/html/);
+    expect(response.text).toContain("TeamForge AI");
+    expect(response.text).toContain("Implemented MVP");
+  });
+
   test("returns HTTP 404 for an unknown application route", async () => {
     const response = await request(app).get("/this-route-does-not-exist");
 

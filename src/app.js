@@ -115,7 +115,6 @@ app.use("/health", healthRoutes);
 app.use("/api/auth", authRoutes);
 
 /*
-/*
  * Authenticated project-management API.
  */
 app.use("/api/projects", projectRoutes);
