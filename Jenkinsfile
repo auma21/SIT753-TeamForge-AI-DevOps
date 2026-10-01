@@ -138,7 +138,45 @@ pipeline {
 
         stage('4. Security') {
             steps {
+                echo '=== TEAMFORGE AI - SECURITY ==='
+                bat '''
+                    @echo off
+
+                    echo ========================================
+                    echo Jenkins Security Tool Verification
+                    echo ========================================
+
+                    echo.
+                    echo Trivy executable:
+                    where trivy
+                    if errorlevel 1 exit /b 1
+
+                    echo.
+                    echo Trivy version:
+                    trivy --version
+                    if errorlevel 1 exit /b 1
+
+                    echo.
+                    echo Docker version:
+                    docker --version
+                    if errorlevel 1 exit /b 1
+
+                    echo.
+                    echo PASS: Jenkins security tools available
+                '''
+
                 bat 'npm run security'
+
+                bat '''
+                    @echo off
+                    trivy fs ^
+                        --scanners vuln ^
+                        --severity HIGH,CRITICAL ^
+                        --ignore-unfixed ^
+                        --exit-code 1 ^
+                        .
+                    if errorlevel 1 exit /b 1
+                '''               
                 bat 'trivy fs --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 .'
                 bat 'trivy fs --scanners misconfig --severity HIGH,CRITICAL --ignorefile .trivyignore --exit-code 1 .'
                 bat 'trivy image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 teamforge-ai:%IMAGE_TAG%'
