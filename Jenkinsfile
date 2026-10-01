@@ -35,11 +35,70 @@ pipeline {
         }
 
         stage('2. Test') {
-            steps { bat 'npm run test:ci' }
+
+            steps {
+
+                echo '=== TEAMFORGE AI - AUTOMATED TESTS ==='
+
+                bat '''
+                    @echo off
+
+                    echo ========================================
+                    echo Jenkins Test Environment
+                    echo ========================================
+
+                    echo NODE_ENV=%NODE_ENV%
+
+                    echo.
+                    echo Node:
+                    node --version
+
+                    echo.
+                    echo NPM:
+                    npm --version
+
+                    echo.
+                    echo Working directory:
+                    cd
+
+                    echo.
+                    echo Test environment file:
+                    if exist .env.test (
+                        echo PASS: .env.test exists
+                    ) else (
+                        echo FAIL: .env.test is missing
+                        exit /b 1
+                    )
+
+                    echo.
+                    echo Running TeamForge CI tests...
+                    call npm run test:ci
+
+                    set TEST_EXIT_CODE=%ERRORLEVEL%
+
+                    echo.
+                    echo ========================================
+                    echo test:ci exit code: %TEST_EXIT_CODE%
+                    echo ========================================
+
+                    exit /b %TEST_EXIT_CODE%
+                '''
+            }
+
             post {
+
                 always {
-                    junit testResults: 'test-results/**/*.xml', allowEmptyResults: true
-                    archiveArtifacts artifacts: 'coverage/**/*', allowEmptyArchive: true, fingerprint: true
+
+                    junit(
+                        testResults: 'test-results/**/*.xml',
+                        allowEmptyResults: true
+                    )
+
+                    archiveArtifacts(
+                        artifacts: 'coverage/**/*',
+                        allowEmptyArchive: true,
+                        fingerprint: true
+                    )
                 }
             }
         }
