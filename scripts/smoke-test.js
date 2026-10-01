@@ -140,6 +140,29 @@ async function run() {
         'PASS: application and database health'
     );
 
+	// ========================================================
+    // 1b. Frontend availability
+    // ========================================================
+
+    const frontendResponse =
+        await fetch(`${baseUrl}/`);
+
+    const frontendHtml =
+        await frontendResponse.text();
+
+    if (
+        !frontendResponse.ok ||
+        !frontendHtml.includes('TeamForge AI')
+    ) {
+        fail(
+            'Supervisor frontend is not available.'
+        );
+    }
+
+    console.log(
+        'PASS: supervisor frontend availability'
+    );
+	
     // ========================================================
     // 2. Registration
     // ========================================================

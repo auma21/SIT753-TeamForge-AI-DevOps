@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta content="width=device-width,initial-scale=1" name="viewport" />
-    <title>Create account · TeamForge AI</title>
+    <title>Project Backlog · TeamForge AI</title>
     <link href="/favicon.ico" rel="icon" type="image/x-icon" />
     <link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png" />
     <link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png" />
@@ -26,7 +26,7 @@
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&;display=swap"
       rel="stylesheet"
     />
     <script>
@@ -84,65 +84,97 @@
   <body>
     <header class="topbar">
       <nav class="shell nav">
-        <a class="brand" href="/"
+        <a class="brand" href="/dashboard.html"
           ><img
             alt="TeamForge AI"
             class="brand-logo"
             src="/teamforge-logo.png"
           />TeamForge AI</a
         >
-        <div class="navlinks"><a href="/login.html">Sign in</a></div>
+        <div class="navlinks">
+          <a href="/dashboard.html">Dashboard</a
+          ><a href="/projects.html">Projects</a
+          ><button data-logout="">Logout</button>
+        </div>
       </nav>
     </header>
-    <main class="shell auth-wrap">
-      <section class="card auth-card">
-        <div class="eyebrow">Get started</div>
-        <h2>Create your account</h2>
-        <p class="muted">
-          Use at least 8 characters with uppercase, lowercase and a number.
-        </p>
-        <div class="message" id="message"></div>
-        <form class="form-grid" data-auth-form="register">
-          <div class="field">
-            <label for="name">Full name</label
-            ><input
-              id="name"
-              maxlength="100"
-              minlength="2"
-              name="name"
-              required=""
-            />
-          </div>
-          <div class="field">
-            <label for="email">Email</label
-            ><input id="email" name="email" required="" type="email" />
-          </div>
-          <div class="field">
-            <label for="password">Password</label
-            ><input
-              id="password"
-              minlength="8"
-              name="password"
-              required=""
-              type="password"
-            />
-          </div>
-          <div class="field">
-            <label for="confirmPassword">Confirm password</label
-            ><input
-              id="confirmPassword"
-              minlength="8"
-              name="confirmPassword"
-              required=""
-              type="password"
-            />
-          </div>
-          <button class="btn primary" type="submit">Create account</button>
-        </form>
+    <main class="shell">
+      <section class="page-head">
+        <div>
+          <a class="muted" href="/projects.html">← All projects</a>
+          <h2 id="projectName">Project</h2>
+          <p id="projectDescription">Loading…</p>
+          <span class="badge" id="projectStatus">active</span>
+        </div>
+        <button class="btn primary" id="newTask">New Task</button>
+      </section>
+      <section class="section" style="padding-top: 6px">
+        <div class="eyebrow" style="margin-bottom: 12px">Agile backlog</div>
+        <div class="board" id="taskBoard">
+          <div class="card empty">Loading tasks…</div>
+        </div>
       </section>
     </main>
+    <div aria-modal="true" class="modal" id="taskModal" role="dialog">
+      <div class="modal-panel">
+        <div class="modal-head">
+          <h2 id="taskModalTitle">Create Task</h2>
+          <button aria-label="Close" class="icon-btn" id="closeTaskModal">
+            x
+          </button>
+        </div>
+        <div class="message" id="taskMessage"></div>
+        <form class="form-grid" id="taskForm">
+          <div class="field">
+            <label for="title">Task title</label
+            ><input
+              id="title"
+              maxlength="200"
+              minlength="2"
+              name="title"
+              required=""
+            />
+          </div>
+          <div class="field">
+            <label for="description">Description</label
+            ><textarea
+              id="description"
+              maxlength="4000"
+              name="description"
+            ></textarea>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <label for="priority">Priority</label
+              ><select id="priority" name="priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="critical">Critical</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="status">Status</label
+              ><select id="status" name="status">
+                <option value="backlog">Backlog</option>
+                <option value="todo">To Do</option>
+                <option value="in-progress">In Progress</option>
+                <option value="review">Review</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+          </div>
+          <div class="toolbar">
+            <button class="btn primary" type="submit">Save Task</button
+            ><button class="btn danger" id="deleteTask" type="button">
+              Delete Task
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
     <script src="/js/api.js"></script>
-    <script src="/js/auth.js"></script>
+    <script src="/js/project.js"></script>
     <footer class="shell footer">
       © 2026 TeamForge AI · SIT753 All rights reserved.
     </footer>

@@ -1,1 +1,163 @@
-
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width,initial-scale=1" name="viewport" />
+    <title>Projects · TeamForge AI</title>
+    <link href="/favicon.ico" rel="icon" type="image/x-icon" />
+    <link href="/favicon-16x16.png" rel="icon" sizes="16x16" type="image/png" />
+    <link href="/favicon-32x32.png" rel="icon" sizes="32x32" type="image/png" />
+    <link href="/favicon-48x48.png" rel="icon" sizes="48x48" type="image/png" />
+    <link href="/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180" />
+    <link
+      href="/android-chrome-192x192.png"
+      rel="icon"
+      sizes="192x192"
+      type="image/png"
+    />
+    <link
+      href="/android-chrome-512x512.png"
+      rel="icon"
+      sizes="512x512"
+      type="image/png"
+    />
+    <meta content="#0e5699" name="theme-color" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&;display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Inter", "sans-serif"] },
+            colors: {
+              brand: {
+                50: "#ebf3fe",
+                100: "#d5e6fd",
+                500: "#1877F2",
+                600: "#1462c7",
+                700: "#0d4da1",
+              },
+              used: { bg: "#EDF9F0", accent: "#389E73", text: "#175438" },
+              notused: { bg: "#FDEEEE", accent: "#D15359", text: "#7e2328" },
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 9999px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+      .grid-paper-bg {
+        background-size: 24px 24px;
+        background-image:
+          linear-gradient(
+            to right,
+            rgba(226, 232, 240, 0.5) 1px,
+            transparent 1px
+          ),
+          linear-gradient(
+            to bottom,
+            rgba(226, 232, 240, 0.5) 1px,
+            transparent 1px
+          );
+      }
+    </style>
+    <link href="/css/styles.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header class="topbar">
+      <nav class="shell nav">
+        <a class="brand" href="/dashboard.html"
+          ><img
+            alt="TeamForge AI"
+            class="brand-logo"
+            src="/teamforge-logo.png"
+          />TeamForge AI</a
+        >
+        <div class="navlinks">
+          <a href="/dashboard.html">Dashboard</a
+          ><a href="/projects.html">Projects</a
+          ><button data-logout="">Logout</button>
+        </div>
+      </nav>
+    </header>
+    <main class="shell">
+      <section class="page-head">
+        <div>
+          <div class="eyebrow">Project browser</div>
+          <h2>Your Projects</h2>
+          <p>Create and manage projects owned by your authenticated account.</p>
+        </div>
+        <button class="btn primary" id="newProject">New Project</button>
+      </section>
+      <section class="section" style="padding-top: 4px">
+        <div class="project-list" id="projectList">
+          <div class="card empty">Loading projects…</div>
+        </div>
+      </section>
+    </main>
+    <div aria-modal="true" class="modal" id="projectModal" role="dialog">
+      <div class="modal-panel">
+        <div class="modal-head">
+          <h2 id="modalTitle">Create Project</h2>
+          <button aria-label="Close" class="icon-btn" id="closeProjectModal">
+            ×
+          </button>
+        </div>
+        <div class="message" id="projectMessage"></div>
+        <form class="form-grid" id="projectForm">
+          <div class="field">
+            <label for="name">Project name</label
+            ><input
+              id="name"
+              maxlength="150"
+              minlength="2"
+              name="name"
+              required=""
+            />
+          </div>
+          <div class="field">
+            <label for="description">Description</label
+            ><textarea
+              id="description"
+              maxlength="2000"
+              name="description"
+            ></textarea>
+          </div>
+          <div class="field">
+            <label for="status">Status</label
+            ><select id="status" name="status">
+              <option value="active">Active</option>
+              <option value="on-hold">On hold</option>
+              <option value="completed">Completed</option>
+              <option value="archived">Archived</option>
+            </select>
+          </div>
+          <button class="btn primary" type="submit">Save Project</button>
+        </form>
+      </div>
+    </div>
+    <script src="/js/api.js"></script>
+    <script src="/js/projects.js"></script>
+    <footer class="shell footer">
+      © 2026 TeamForge AI · SIT753 All rights reserved.
+    </footer>
+  </body>
+</html>
