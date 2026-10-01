@@ -36,65 +36,165 @@ pipeline {
 
         stage('2. Test') {
 
+            environment {
+
+                /*
+                * Non-secret CI test database configuration.
+                *
+                * IMPORTANT:
+                * These values must match the dedicated PostgreSQL
+                * database used by the TeamForge integration tests.
+                *
+                * Do NOT point these tests at staging or production.
+                */
+                DB_HOST = 'localhost'
+                DB_PORT = '5432'
+                DB_NAME = 'teamforge_test'
+                DB_USER = 'teamforge_user'
+
+                /*
+                * Test runtime configuration.
+                */
+                NODE_ENV = 'test'
+                JWT_EXPIRES_IN = '1h'
+            }
+
             steps {
 
                 echo '=== TEAMFORGE AI - AUTOMATED TESTS ==='
 
-                bat '''
-                    @echo off
+                /*
+                * Secrets are supplied by Jenkins Credentials rather
+                * than committed to .env.test or the repository.
+                */
+                withCredentials([
 
-                    echo ========================================
-                    echo Jenkins Test Environment
-                    echo ========================================
+                    string(
+                        credentialsId: 'teamforge-test-db-password',
+                        variable: 'TEAMFORGE_TEST_DB_PASSWORD'
+                    ),
 
-                    echo NODE_ENV=%NODE_ENV%
+                    string(
+                        credentialsId: 'teamforge-test-jwt-secret',
+                        variable: 'TEAMFORGE_TEST_JWT_SECRET'
+                    )
+                ]) {
 
-                    echo.
-                    echo Node:
-                    call node --version
-                    if errorlevel 1 exit /b 1
+                    bat '''
+                        @echo off
 
-                    echo.
-                    echo NPM:
-                    call npm --version
-                    if errorlevel 1 exit /b 1
+                        echo ========================================
+                        echo Jenkins Test Environment
+                        echo ========================================
 
-                    echo.
-                    echo Cleaning previous test evidence...
+                        echo NODE_ENV=%NODE_ENV%
+                        echo DB_HOST=%DB_HOST%
+                        echo DB_PORT=%DB_PORT%
+                        echo DB_NAME=%DB_NAME%
+                        echo DB_USER=%DB_USER%
 
-                    if exist test-results rmdir /s /q test-results
-                    if exist coverage rmdir /s /q coverage
+                        echo.
+                        echo Node:
+                        node --version
 
-                    echo.
-                    echo ========================================
-                    echo Running TeamForge Automated Test Suite
-                    echo ========================================
+                        if errorlevel 1 (
+                            echo ERROR: Node.js is unavailable.
+                            exit /b 1
+                        )
 
-                    call npm run test:ci
+                        echo.
+                        echo NPM:
 
-                    set TEST_EXIT_CODE=%ERRORLEVEL%
+                        REM npm is npm.cmd on Windows.
+                        REM CALL is required so execution returns to
+                        REM this Jenkins-generated batch script.
+                        call npm --version
 
-                    echo.
-                    echo ========================================
-                    echo TeamForge test exit code: %TEST_EXIT_CODE%
-                    echo ========================================
+                        if errorlevel 1 (
+                            echo ERROR: npm is unavailable.
+                            exit /b 1
+                        )
 
-                    exit /b %TEST_EXIT_CODE%
-                '''
+                        echo.
+                        echo ========================================
+                        echo Configuring Test Secrets
+                        echo ========================================
+
+                        REM Map Jenkins Secret Text credentials to the
+                        REM variable names consumed by database.js and
+                        REM the authentication service.
+                        set "DB_PASSWORD=%TEAMFORGE_TEST_DB_PASSWORD%"
+                        set "JWT_SECRET=%TEAMFORGE_TEST_JWT_SECRET%"
+
+                        REM Validate presence without exposing secrets.
+                        if "%DB_PASSWORD%"=="" (
+                            echo ERROR: DB_PASSWORD was not injected.
+                            exit /b 1
+                        )
+
+                        if "%JWT_SECRET%"=="" (
+                            echo ERROR: JWT_SECRET was not injected.
+                            exit /b 1
+                        )
+
+                        echo PASS: required test secrets injected.
+
+                        echo.
+                        echo ========================================
+                        echo Cleaning Previous Test Evidence
+                        echo ========================================
+
+                        if exist test-results (
+                            rmdir /s /q test-results
+                        )
+
+                        if exist coverage (
+                            rmdir /s /q coverage
+                        )
+
+                        echo PASS: previous test evidence removed.
+
+                        echo.
+                        echo ========================================
+                        echo Running TeamForge Automated Test Suite
+                        echo ========================================
+
+                        call npm run test:ci
+
+                        set TEST_EXIT_CODE=%ERRORLEVEL%
+
+                        echo.
+                        echo ========================================
+                        echo TeamForge test exit code: %TEST_EXIT_CODE%
+                        echo ========================================
+
+                        exit /b %TEST_EXIT_CODE%
+                    '''
+                }
             }
 
             post {
 
                 always {
 
+                    /*
+                    * Publish JUnit when Jest generated it.
+                    *
+                    * allowEmptyResults prevents a secondary JUnit
+                    * exception from hiding an earlier configuration
+                    * or test-startup failure.
+                    */
                     junit(
                         testResults: 'test-results/junit.xml',
-                        allowEmptyResults: false
+                        allowEmptyResults: true
                     )
 
+                    /*
+                    * Preserve current-build coverage evidence.
+                    */
                     archiveArtifacts(
                         artifacts: 'coverage/**/*',
-                        allowEmptyArchive: false,
+                        allowEmptyArchive: true,
                         fingerprint: true
                     )
                 }
