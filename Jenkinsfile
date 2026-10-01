@@ -51,12 +51,12 @@ pipeline {
 
                     echo.
                     echo Node:
-                    node --version
+                    call node --version
                     if errorlevel 1 exit /b 1
 
                     echo.
                     echo NPM:
-                    npm --version
+                    call npm --version
                     if errorlevel 1 exit /b 1
 
                     echo.
@@ -100,7 +100,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('3. Code Quality') {
 
             steps {
