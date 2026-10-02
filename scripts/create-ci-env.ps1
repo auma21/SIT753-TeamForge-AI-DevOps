@@ -31,7 +31,7 @@ switch ($env:DEPLOY_ENVIRONMENT) {
 COMPOSE_PROJECT_NAME=teamforge-staging
 IMAGE_TAG=$($env:IMAGE_TAG)
 
-NODE_ENV=production
+NODE_ENV=staging
 DEPLOYMENT_ENVIRONMENT=staging
 
 PORT=3000
