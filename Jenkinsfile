@@ -8,8 +8,7 @@ pipeline {
         timeout(time: 90, unit: 'MINUTES')
     }
 
-    environment {
-        NODE_ENV = 'test'
+    environment {        
         STAGING_URL = 'http://localhost:3001'
         PRODUCTION_URL = 'http://localhost:3000'
         GOSU_VERSION = '1.19'
